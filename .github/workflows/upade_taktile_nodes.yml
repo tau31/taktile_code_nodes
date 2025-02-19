@@ -8,7 +8,7 @@ jobs:
   update_taktile_nodes:    
     runs-on: ubuntu-22.04
     env: 
-      NODES_TO_PATCH: ("Multiply" "Summarize")
+      NODES_TO_PATCH: ["Multiply","Summarize"]
     steps:
       - name: Prepare data body to post to API
         run: |
@@ -46,7 +46,7 @@ jobs:
       - name: Parse data on code nodes to update
         run: |
           # Parse node information from decision graph to prepare code update
-          # FILES_TO_UPDATE=("Multiply" "Summarize")
+          NODES_TO_PATCH=("Multiply" "Summarize")
           echo $NODES_TO_PATCH
 
           for file_name in $NODES_TO_PATCH 
