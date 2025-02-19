@@ -7,6 +7,8 @@ on:
 jobs:
   update_taktile_nodes:    
     runs-on: ubuntu-22.04
+    env: 
+      NODES_TO_PATCH: ("Multiply" "Summarize")
     steps:
       - name: Prepare data body to post to API
         run: |
@@ -45,8 +47,9 @@ jobs:
         run: |
           # Parse node information from decision graph to prepare code update
           # FILES_TO_UPDATE=("Multiply" "Summarize")
+          echo $NODES_TO_PATCH
 
-          for file_name in ("Multiply" "Summarize") 
+          for file_name in $NODES_TO_PATCH 
           do
             jq --arg file "$file_name" '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' dec_graph_res.json >> to_update.json
           done 
