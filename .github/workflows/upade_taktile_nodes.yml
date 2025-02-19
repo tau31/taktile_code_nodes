@@ -48,10 +48,7 @@ jobs:
 
           for file_name in $FILES_TO_UPDATE 
           do
-            jq \
-              --arg file "$file_name" \
-              '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' \
-              dec_graph_res.json >> to_update.json
+            jq --arg file "$file_name" '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' dec_graph_res.json >> to_update.json
           done 
           
           echo $(cat to_update.json)
