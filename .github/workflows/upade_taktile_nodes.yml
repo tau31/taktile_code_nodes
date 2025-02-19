@@ -36,13 +36,16 @@ jobs:
           # #! Here I am assuming that this org only has one flow
           # #! Another algorithm that iterates over flows to update specific python files might be necessary
           flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+      
       - name: Get and Parse decision graph information
         run: |
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
 
           curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${API_KEY}" -d @get_dec_graph_data.json > dec_graph_res.json
-          jq
+         
+          echo "::notice::$(jq '.status | tostring' dec_graph_res.json)"
+      
       - name: Parse data on code nodes to update
         run: |
           echo $(cat dec_graph_res.json)
