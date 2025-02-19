@@ -6,9 +6,40 @@ jobs:
   update_taktile_nodes:    
     runs-on: ubuntu-22.04
     steps:
-      - name: Test API_KEY and API
+      - name: Prepare data body to post to API
         run: |
-        
+          echo '{
+            "data": {
+            },
+            "metadata": {
+              "version": "v1.0",
+              "entity_id": "string"
+            },
+            "control": {
+              "execution_mode": "sync"
+            }
+          }' > data_body.json
+      
+      - name: Get Organization flow_id
+        run: | 
+          # Prepare data to post to get flow_id from organization
+          jq --arg org_name "${{ ORG_NAME }}" '.data |= (.organization_name = $org_name)' data_body.json > list_flows_data.json
+
+          # Post to List Decision Flows API to obtain List of Flows
+          curl -X 'POST'
+            'https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide' \
+            -H 'accept: application/json'
+            -H 'Content-Type: application/json'
+            -H "X-API-Key: ${{ TAKTILE_API_KEY }}"
+            -d @list_flows_data.json
+            > flow_res.json 
+
+          # Parse flow_id from response 
+          #! Here I am assuming that this org only has one flow
+          #! Another algorithm that iterates over flows to update specific python files might be necessary
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+          echo $flow_id    
+          
         
     
     
