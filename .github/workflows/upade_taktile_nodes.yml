@@ -42,11 +42,13 @@ jobs:
           curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${API_KEY}" -d @get_dec_graph_data.json > dec_graph_res.json
           echo "::debug::$(jq '.' dec_graph_res.json)"
       - name: Parse data on code nodes to update
+        env:
+          
         run: |
           # Parse node information from decision graph to prepare code update
-          FILES_TO_UPDATE=("Multiply" "Summarize")
+          # FILES_TO_UPDATE=("Multiply" "Summarize")
 
-          for file_name in $FILES_TO_UPDATE 
+          for file_name in ("Multiply" "Summarize") 
           do
             jq --arg file "$file_name" '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' dec_graph_res.json >> to_update.json
           done 
