@@ -1,0 +1,16 @@
+on: 
+  push: 
+    branches:
+    - main
+jobs:
+  update_taktile_nodes:    
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Test API_KEY and API
+        run: |
+        
+        
+    
+    
+    
+  
