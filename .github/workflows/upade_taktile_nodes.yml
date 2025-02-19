@@ -51,6 +51,7 @@ jobs:
 
           for file_name in $NODES_TO_PATCH 
           do
+            echo $file_name
             jq --arg file "$file_name" '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' dec_graph_res.json >> to_update.json
           done 
           
