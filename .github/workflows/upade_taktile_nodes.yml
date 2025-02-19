@@ -5,7 +5,9 @@ on:
     - main
     
 jobs:
-  update_taktile_nodes:    
+  update_taktile_nodes:  
+    env:
+      NODES_TO_PATCH: Multiply Summarize  
     runs-on: ubuntu-22.04
     steps:
       - name: Prepare data body to post to API
@@ -44,7 +46,7 @@ jobs:
       - name: Parse data on code nodes to update
         run: |
           # Parse node information from decision graph to prepare code update
-          NODES_TO_PATCH=("Multiply" "Summarize")
+          # NODES_TO_PATCH=("Multiply" "Summarize")
           echo $NODES_TO_PATCH
 
           for file_name in $NODES_TO_PATCH 
