@@ -4,6 +4,10 @@ on:
     branches:
     - main
     
+defaults:
+  run:
+    shell: bash
+
 jobs:
   update_taktile_nodes:  
     env:
