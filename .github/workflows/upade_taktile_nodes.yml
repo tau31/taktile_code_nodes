@@ -39,10 +39,11 @@ jobs:
           # # Parse flow_id from response 
           # #! Here I am assuming that this org only has one flow
           # #! Another algorithm that iterates over flows to update specific python files might be necessary
-          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
       
       - name: Get and Parse decision graph information
         run: |
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
           echo "$(cat get_dec_graph_data.json)"
