@@ -25,14 +25,14 @@ jobs:
       - name: Get Organization flow_id
         run: | 
           # Prepare data to post to get flow_id from organization
-          jq --arg org_name "${{ ORG_NAME }}" '.data |= (.organization_name = $org_name)' data_body.json > list_flows_data.json
+          jq --arg org_name "${{ vars.ORG_NAME }}" '.data |= (.organization_name = $org_name)' data_body.json > list_flows_data.json
 
           # Post to List Decision Flows API to obtain List of Flows
           curl -X 'POST'
             'https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide' \
             -H 'accept: application/json'
             -H 'Content-Type: application/json'
-            -H "X-API-Key: ${{ TAKTILE_API_KEY }}"
+            -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}"
             -d @list_flows_data.json
             > flow_res.json 
 
