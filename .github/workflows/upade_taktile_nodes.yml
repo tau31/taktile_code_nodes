@@ -28,7 +28,7 @@ jobs:
           jq --arg org_name "${{ vars.ORG_NAME }}" '.data |= (.organization_name = $org_name)' data_body.json > list_flows_data.json
 
           # Post to List Decision Flows API to obtain List of Flows
-          curl https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
+          curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
 
           # # Parse flow_id from response 
           # #! Here I am assuming that this org only has one flow
@@ -39,7 +39,7 @@ jobs:
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
 
-          curl -X 'POST' https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${API_KEY}" -d @get_dec_graph_data.json > dec_graph_res.json
+          curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${API_KEY}" -d @get_dec_graph_data.json > dec_graph_res.json
           echo "::debug::$(jq '.' dec_graph_res.json)"
               
     
