@@ -33,8 +33,8 @@ jobs:
           # # Parse flow_id from response 
           # #! Here I am assuming that this org only has one flow
           # #! Another algorithm that iterates over flows to update specific python files might be necessary
-          # flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
-          # echo $flow_id    
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+          echo "::debug::$flow_id"
           
         
     
