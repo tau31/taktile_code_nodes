@@ -7,8 +7,6 @@ on:
 jobs:
   update_taktile_nodes:    
     runs-on: ubuntu-22.04
-    env: 
-      NODES_TO_PATCH: ["Multiply","Summarize"]
     steps:
       - name: Prepare data body to post to API
         run: |
