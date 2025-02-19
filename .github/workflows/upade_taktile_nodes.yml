@@ -46,11 +46,11 @@ jobs:
 
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
-
-          curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${API_KEY}" -d @get_dec_graph_data.json 
+          echo "$(cat get_dec_graph_data.json)"    
+          # curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${API_KEY}" -d @get_dec_graph_data.json 
           
-          status=$(jq '.status' dec_graph_res.json)
-          echo "$status"
+          # status=$(jq '.status' dec_graph_res.json)
+          # echo "$status"
 
 
       
