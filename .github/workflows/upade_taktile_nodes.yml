@@ -3,17 +3,14 @@ on:
     types: [synchronize]    
     branches:
     - main
-    
-defaults:
-  run:
-    shell: bash
-
 jobs:
   update_taktile_nodes:  
     env:
       NODES_TO_PATCH: Multiply Summarize  
     runs-on: ubuntu-22.04
     steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
       - name: Prepare data body to post to API
         run: |
           # data body to enter data for each API call as needed
@@ -70,7 +67,7 @@ jobs:
             # set variables to insert
             node_name=$(echo $i | jq -r '.name')
             
-            new_code=$(cat "${{ github.repository }}/$node_name.py") # get file path via github api
+            new_code=$(cat "$node_name.py")
             echo $(cat $new_code)
             # node_id=$(echo $i | jq -r '.node_id')
             # # create data JSON to POST
