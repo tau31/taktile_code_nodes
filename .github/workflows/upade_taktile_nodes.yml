@@ -34,13 +34,22 @@ jobs:
           # Post to List Decision Flows API to obtain List of Flows
           # curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H @header_file.txt -d @list_flows_data.json > flow_res.json 
           curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
+          
+          # check API response 
+          call_status=$(jq -c '.status' flow_res.json)
+          if [ $call_status != successful ] 
+            then
+              status_msg=$(jq -c '.detail.msg' flow_res.json)
+              echo "Call not successful. Status:$call_status Message: $status_msg" 
+              exit 1
+          fi
+          success_message=$(jq '.data.message' flow_res.json)
+          echo "API call with status: $call_status; Message: success_message"
+            
 
-          # # Parse flow_id from response 
-          # #! Here I am assuming that this org only has one flow
-          # #! Another algorithm that iterates over flows to update specific python files might be necessary
-      
       - name: Get and Parse decision graph information
         run: |
+          # # Parse flow_id from response 
           flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
 
           # Get Decision graph for a flow_id
@@ -48,7 +57,17 @@ jobs:
 
           curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @get_dec_graph_data.json > dec_graph_res.json
           
-          status=$(jq '.status' dec_graph_res.json)
+          # check API response 
+          call_status=$(jq -c '.status' dec_graph_res.json)
+          if [ $call_status != successful ] 
+            then
+              status_msg=$(jq -c '.detail.msg' dec_graph_res.json)
+              echo "Call not successful. Status:$call_status Message: $status_msg" 
+              exit 1
+          fi
+          success_message=$(jq '.data.message' dec_graph_res.json)
+          echo "API call with status: $call_status; Message: success_message"
+            
 
       - name: Extract data from decision graph to use on update call 
         run: |
@@ -82,8 +101,21 @@ jobs:
             echo "Updating Code node $node_name.py"
             # # POST update code via the Patch decision graph API
             curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/patch-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-Api-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @patched_node.json > patch_res.json
-            
+
+            # check API response 
+            call_status=$(jq -c '.status' patch_res.json)
+            if [ $call_status != successful ] 
+              then
+                status_msg=$(jq -c '.detail.msg' patch_res.json)
+                echo "Call not successful. Status:$call_status Message: $status_msg" 
+                exit 1
+            fi
+            success_message=$(jq '.data.message' patch_res.json)
+            echo "API call with status: $call_status; Message: success_message"
+          
           done
+          
+          echo "Updating Python Code Nodes Completed"
 
                         
 
