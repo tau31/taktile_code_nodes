@@ -62,6 +62,7 @@ jobs:
           echo $(cat to_update.json)
       - name: Update nodes via the Patch decision graph API
         run: |
+          echo $flow_id
           # loop over nodes to patch
           jq -c '.' to_update.json | while read i; do
             # set variables to insert
