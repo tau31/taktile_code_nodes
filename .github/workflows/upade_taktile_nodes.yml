@@ -2,7 +2,8 @@ on:
   pull_request:
     types: [synchronize]
     paths:
-      -*.py
+      - Summarize.py
+      - Multiply.py
     branches:
     - main
 jobs:
