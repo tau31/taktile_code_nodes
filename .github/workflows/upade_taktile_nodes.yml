@@ -34,10 +34,9 @@ jobs:
           # Post to List Decision Flows API to obtain List of Flows
           # curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H @header_file.txt -d @list_flows_data.json > flow_res.json 
           curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
-          echo $(cat flow_res.json)
+          
           # check API response 
           call_status=$(jq -c '.status' flow_res.json)
-          echo $call_status
           if [ $call_status = error ]; then
             status_msg=$(jq -c '.detail.msg' flow_res.json)
             echo "Call not successful. Status:error Message: $status_msg" 
@@ -65,7 +64,7 @@ jobs:
             exit 1
           fi
           success_message=$(jq '.data.message' dec_graph_res.json)
-          echo "API call with status: $call_status; Message: success_message"
+          echo "API call with status: $call_status; Message: $success_message"
             
 
       - name: Extract data from decision graph to use on update call 
@@ -77,7 +76,6 @@ jobs:
               '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' \
               dec_graph_res.json >> to_update.json
           done
-          echo $(cat to_update.json)
       - name: Update nodes via the Patch decision graph API
         run: |
           # parse flow_id
@@ -109,7 +107,7 @@ jobs:
               exit 1
             fi
             success_message=$(jq '.data.message' patch_res.json)
-            echo "API call with status: $call_status; Message: success_message"
+            echo "API call with status: $call_status; Message: $success_message"
           
           done
           
