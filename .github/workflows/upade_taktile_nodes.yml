@@ -41,7 +41,7 @@ jobs:
       
       - name: Get and Parse decision graph information
         run: |
-          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json) >> "$GITHUB_ENV"
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
 
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
@@ -62,7 +62,8 @@ jobs:
           echo $(cat to_update.json)
       - name: Update nodes via the Patch decision graph API
         run: |
-          echo $flow_id
+          # parse flow_id
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
           # loop over nodes to patch
           jq -c '.' to_update.json | while read i; do
             # set variables to insert
