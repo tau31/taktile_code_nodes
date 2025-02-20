@@ -79,7 +79,7 @@ jobs:
             echo $(cat patched_node.json)
             
             # # POST update code via the Patch decision graph API
-            curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/patch-decision-graph/sandbox/decide -H 'accept: application/json -H 'Content-Type: application/json' -H "X-Api-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @patched_node.json > patch_res.json
+            curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/patch-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-Api-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @patched_node.json > patch_res.json
             echo $(cat patch_res.json)
           done
 
