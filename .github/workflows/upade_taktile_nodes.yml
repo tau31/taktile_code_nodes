@@ -37,7 +37,7 @@ jobs:
           echo $(cat flow_res.json)
           # check API response 
           call_status=$(jq -c '.status' flow_res.json)
-          if [ $call_status != successful ] 
+          if [ $call_status != success ] 
             then
               status_msg=$(jq -c '.detail.msg' flow_res.json)
               echo "Call not successful. Status:$call_status Message: $status_msg" 
@@ -59,7 +59,7 @@ jobs:
           
           # check API response 
           call_status=$(jq -c '.status' dec_graph_res.json)
-          if [ $call_status != successful ] 
+          if [ $call_status != success ] 
             then
               status_msg=$(jq -c '.detail.msg' dec_graph_res.json)
               echo "Call not successful. Status:$call_status Message: $status_msg" 
@@ -104,7 +104,7 @@ jobs:
 
             # check API response 
             call_status=$(jq -c '.status' patch_res.json)
-            if [ $call_status != successful ] 
+            if [ $call_status != success ] 
               then
                 status_msg=$(jq -c '.detail.msg' patch_res.json)
                 echo "Call not successful. Status:$call_status Message: $status_msg" 
