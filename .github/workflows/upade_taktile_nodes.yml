@@ -30,7 +30,7 @@ jobs:
           }' > data_body.json
 
           # create header file to simplify each API call
-          echo "accept: application/json\nContent-Type: application/json\nX-API-Key: ${{ secrets.TAKTILE_API_KEY }}" > headers_file 
+          echo "accept: application/json\nContent-Type: application/json\nX-API-Key: ${{ secrets.TAKTILE_API_KEY }}" > header_file 
 
 
 
