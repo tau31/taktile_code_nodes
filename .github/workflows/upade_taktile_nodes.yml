@@ -63,6 +63,34 @@ jobs:
               dec_graph_res.json >> to_update.json
           done
           echo $(cat to_update.json)
-                  
+      - name: Update nodes via the Patch decision graph API
+        run: |
+          # loop over nodes to patch
+          jq -c '.' to_update.json | while read i; do
+            # set variables to insert
+            node_name=$(echo $i | jq -r '.name')
+            
+            new_code=$(cat "${{ github.workspace }}/$node_name.py") # get file path via github api
+            echo $(cat $new_code)
+            # node_id=$(echo $i | jq -r '.node_id')
+            # # create data JSON to POST
+            # jq -r \
+            # --arg flow_id "$flow_id" \
+            # --arg node_id "$node_id" \
+            # --arg src_code "$new_code" \
+            # '.data |= (.flow_id = $flow_id | .node_id = $node_id | .src_code = $src_code)' data_body.json \
+            # > patched_node.json
+            
+            # # POST update code via the Patch decision graph API
+            # curl -X 'POST' \
+            #   'https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/patch-decision-graph/sandbox/decide' \
+            #   -H 'accept: application/json' \
+            #   -H 'Content-Type: application/json' \
+            #   -H "X-Api-Key: ${{ secrets.TAKTILE_API_KEY }}" \
+            #   -d @patched_node.json  \
+            # | jq '.'
+          done
+
+                        
 
                 
