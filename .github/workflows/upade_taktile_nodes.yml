@@ -14,8 +14,9 @@ jobs:
       NODES_TO_PATCH: Multiply Summarize  
     runs-on: ubuntu-22.04
     steps:
-      - name: Prepare data body to post to API
+      - name: Prepare data body and headers to post to API
         run: |
+          # data body to enter data for each API call as needed
           echo '{
             "data": {
             },
@@ -27,6 +28,12 @@ jobs:
               "execution_mode": "sync"
             }
           }' > data_body.json
+
+          # create header file to simplify each API call
+          echo "accept: application/json\nContent-Type: application/json\nX-API-Key: $API_KEY" > headers_file 
+
+
+
       
       - name: Get Organization flow_id
         run: | 
@@ -34,7 +41,11 @@ jobs:
           jq --arg org_name "${{ vars.ORG_NAME }}" '.data |= (.organization_name = $org_name)' data_body.json > list_flows_data.json
 
           # Post to List Decision Flows API to obtain List of Flows
-          curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
+          curl -s \
+          https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide \
+          -H @header_file \
+          -d @list_flows_data.json > flow_res.json 
+          # curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
 
           # # Parse flow_id from response 
           # #! Here I am assuming that this org only has one flow
