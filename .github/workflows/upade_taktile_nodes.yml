@@ -46,11 +46,20 @@ jobs:
 
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
-          echo "$(cat get_dec_graph_data.json)"    
+
           curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @get_dec_graph_data.json > dec_graph_res.json
           
           status=$(jq '.status' dec_graph_res.json)
-          echo "$status"
 
+      - name: Extract data from decision graph to use on update call 
+        run: |
+          for file_name in $NODES_TO_PATCH
+          do
+            jq \
+              --arg file "$file_name" \
+              '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' \
+              dec_graph_res.json >> to_update.json
+          done 
+                  
 
-      
+                
