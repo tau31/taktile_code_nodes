@@ -70,7 +70,7 @@ jobs:
             # set variables to insert
             node_name=$(echo $i | jq -r '.name')
             
-            new_code=$(cat "${{ github.workspace }}/$node_name.py") # get file path via github api
+            new_code=$(cat "${{ github.repository }}/$node_name.py") # get file path via github api
             echo $(cat $new_code)
             # node_id=$(echo $i | jq -r '.node_id')
             # # create data JSON to POST
