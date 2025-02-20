@@ -66,17 +66,17 @@ jobs:
           jq -c '.' to_update.json | while read i; do
             # set variables to insert
             node_name=$(echo $i | jq -r '.name')
-            
             new_code=$(cat "$node_name.py")
-            echo $(cat $new_code)
-            # node_id=$(echo $i | jq -r '.node_id')
+            node_id=$(echo $i | jq -r '.node_id')
+            
             # # create data JSON to POST
-            # jq -r \
-            # --arg flow_id "$flow_id" \
-            # --arg node_id "$node_id" \
-            # --arg src_code "$new_code" \
-            # '.data |= (.flow_id = $flow_id | .node_id = $node_id | .src_code = $src_code)' data_body.json \
-            # > patched_node.json
+            jq -r \
+            --arg flow_id "$flow_id" \
+            --arg node_id "$node_id" \
+            --arg src_code "$new_code" \
+            '.data |= (.flow_id = $flow_id | .node_id = $node_id | .src_code = $src_code)' data_body.json \
+            > patched_node.json
+            echo $(cat patched_node.json)
             
             # # POST update code via the Patch decision graph API
             # curl -X 'POST' \
