@@ -1,0 +1,120 @@
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+jobs:
+  update_taktile_nodes:  
+    if: github.event.pull_request.merged == true
+    env:
+      NODES_TO_PATCH: Multiply Summarize  
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: Prepare data body to post to API
+        run: |
+          # data body to enter data for each API call as needed
+          echo '{
+            "data": {
+            },
+            "metadata": {
+              "version": "v1.0",
+              "entity_id": "string"
+            },
+            "control": {
+              "execution_mode": "sync"
+            }
+          }' > data_body.json
+
+      - name: Get Organization flow_id
+        run: | 
+          # Prepare data to post to get flow_id from organization
+          jq --arg org_name ${{ vars.ORG_NAME }} '.data |= (.organization_name = $org_name)' data_body.json > list_flows_data.json
+
+          # Post to List Decision Flows API to obtain List of Flows
+          # curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H @header_file.txt -d @list_flows_data.json > flow_res.json 
+          curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/list-decision-graphs/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @list_flows_data.json > flow_res.json 
+          
+          # check API response 
+          call_status=$(jq -c '.status' flow_res.json)
+          if [ $call_status = error ]; then
+            status_msg=$(jq -c '.detail.msg' flow_res.json)
+            echo "Call not successful. Status:error Message: $status_msg" 
+            exit 1
+          fi
+          api_msg=$(jq '.data.message' flow_res.json)
+          echo "API call with status: $call_status; Message: $api_msg"
+            
+
+      - name: Get and Parse decision graph information
+        run: |
+          # # Parse flow_id from response 
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+
+          # Get Decision graph for a flow_id
+          jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
+
+          curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/get-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-API-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @get_dec_graph_data.json > dec_graph_res.json
+          
+          # check API response 
+          call_status=$(jq -c '.status' dec_graph_res.json)
+          if [ $call_status = error ]; then
+            status_msg=$(jq -c '.detail.msg' dec_graph_res.json)
+            echo "Call not successful. Status:$call_status Message: $status_msg" 
+            exit 1
+          fi
+          success_message=$(jq '.data.message' dec_graph_res.json)
+          echo "API call with status: $call_status; Message: $success_message"
+            
+
+      - name: Extract data from decision graph to use on update call 
+        run: |
+          for file_name in $NODES_TO_PATCH
+          do
+            jq \
+              --arg file "$file_name" \
+              '.data.graph[]  | select(.node_name == $file) | {name: .node_name, node_id: .node_id, src_code: .meta.src_code}' \
+              dec_graph_res.json >> to_update.json
+          done
+      - name: Update nodes via the Patch decision graph API
+        run: |
+          # parse flow_id
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+          # loop over nodes to patch
+          jq -c '.' to_update.json | while read i; do
+            # set variables to insert
+            node_name=$(echo $i | jq -r '.name')
+            new_code=$(cat "$node_name.py")
+            node_id=$(echo $i | jq -r '.node_id')
+            
+            # # create data JSON to POST
+            jq -r \
+            --arg flow_id "$flow_id" \
+            --arg node_id "$node_id" \
+            --arg src_code "$new_code" \
+            '.data |= (.flow_id = $flow_id | .node_id = $node_id | .src_code = $src_code)' data_body.json \
+            > patched_node.json
+            
+            echo "Updating Code node $node_name.py"
+            # # POST update code via the Patch decision graph API
+            curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/patch-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-Api-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @patched_node.json > patch_res.json
+
+            # check API response 
+            call_status=$(jq -c '.status' patch_res.json)
+          if [ $call_status = error ]; then
+              status_msg=$(jq -c '.detail.msg' patch_res.json)
+              echo "Call not successful. Status:$call_status Message: $status_msg" 
+              exit 1
+            fi
+            success_message=$(jq '.data.message' patch_res.json)
+            echo "API call with status: $call_status; Message: $success_message"
+          
+          done
+          
+          echo "Updating Python Code Nodes Completed"
+
+                        
+
+                
