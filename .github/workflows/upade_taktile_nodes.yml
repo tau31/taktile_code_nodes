@@ -1,13 +1,12 @@
 on:
   pull_request:
-    types: [synchronize]
-    paths:
-      - Summarize.py
-      - Multiply.py
+    types:
+      - closed
     branches:
-    - main
+      - main
 jobs:
   update_taktile_nodes:  
+    if: github.event.pull_request.merged == true
     env:
       NODES_TO_PATCH: Multiply Summarize  
     runs-on: ubuntu-22.04
