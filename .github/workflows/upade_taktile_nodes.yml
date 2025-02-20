@@ -40,10 +40,8 @@ jobs:
           # #! Another algorithm that iterates over flows to update specific python files might be necessary
       
       - name: Get and Parse decision graph information
-        env:
-          flow_id: $(jq -r '.data.flows[].flow_id' flow_res.json) 
         run: |
-          # flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
 
           # Get Decision graph for a flow_id
           jq --arg flow_id "$flow_id" '.data |= (.flow_id = $flow_id)' data_body.json > get_dec_graph_data.json
@@ -64,6 +62,8 @@ jobs:
           echo $(cat to_update.json)
       - name: Update nodes via the Patch decision graph API
         run: |
+          # parse flow_id
+          flow_id=$(jq -r '.data.flows[].flow_id' flow_res.json)
           # loop over nodes to patch
           jq -c '.' to_update.json | while read i; do
             # set variables to insert
