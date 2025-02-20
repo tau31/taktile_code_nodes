@@ -38,14 +38,14 @@ jobs:
           # check API response 
           call_status=$(jq -c '.status' flow_res.json)
           echo $call_status
-          if [ $call_status != "success" ] 
+          if [ $call_status = error ] 
             then
               status_msg=$(jq -c '.detail.msg' flow_res.json)
-              echo "Call not successful. Status:$call_status Message: $status_msg" 
+              echo "Call not successful. Status:error Message: $status_msg" 
               exit 1
           fi
-          success_message=$(jq '.data.message' flow_res.json)
-          echo "API call with status: $call_status; Message: success_message"
+          api_msg=$(jq '.data.message' flow_res.json)
+          echo "API call with status: $call_status; Message: $api_msg"
             
 
       - name: Get and Parse decision graph information
