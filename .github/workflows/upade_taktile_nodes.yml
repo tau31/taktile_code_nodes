@@ -38,7 +38,7 @@ jobs:
           # check API response 
           call_status=$(jq -c '.status' flow_res.json)
           echo $call_status
-          if [ $call_status != success ] 
+          if [ $call_status != "success" ] 
             then
               status_msg=$(jq -c '.detail.msg' flow_res.json)
               echo "Call not successful. Status:$call_status Message: $status_msg" 
