@@ -78,11 +78,11 @@ jobs:
             --arg src_code "$new_code" \
             '.data |= (.flow_id = $flow_id | .node_id = $node_id | .src_code = $src_code)' data_body.json \
             > patched_node.json
-            echo $(cat patched_node.json)
             
+            echo "Updating Code node $node_name.py"
             # # POST update code via the Patch decision graph API
             curl -s https://eu-central-1.taktile-org.decide.taktile.com/run/api/v1/flows/patch-decision-graph/sandbox/decide -H 'accept: application/json' -H 'Content-Type: application/json' -H "X-Api-Key: ${{ secrets.TAKTILE_API_KEY }}" -d @patched_node.json > patch_res.json
-            echo $(cat patch_res.json)
+            
           done
 
                         
